@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentiment Analysis Notification System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    body { 
+      font-family: 'Roboto', sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      color: #333; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      overflow: auto;
+      position: relative;
+      background: url('your-image-url.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+    }
+
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      top: 0;
+      left: 0;
+    }
+
+    header {
+      width: 100%;
+      background-color: rgba(98, 0, 234, 0.9);
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 800px;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .comments-container, .comment-form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .comment {
+      margin: 10px 0;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .comment:last-child {
+      border-bottom: none;
+    }
+
+    .negative { 
+      color: #d32f2f; 
+    }
+
+    .positive { 
+      color: #388e3c; 
+    }
+
+    #comment-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    #comment-form button {
+      background-color: #6200ea;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    #comment-form button:hover {
+      background-color: #b300b0;
+    }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+  <header>
+    <h1>Sentiment Analysis Notification System</h1>
+  </header>
+  
+  <div class="container">
+    <div class="comments-container">
+      <h2>Comments</h2>
+      <div id="comments"></div>
+    </div>
+
+    <div class="comment-form" id="comment-form">
+      <h2>Post a Comment</h2>
+      <textarea id="comment" rows="4" placeholder="Write your comment here..."></textarea><br>
+      <button onclick="postComment()">Post</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    particlesJS.load('particles-js', 'particles.json', function() {
+      console.log('particles.js loaded - callback');
+    });
+
+    async function postComment() {
+      const comment = document.getElementById('comment').value;
+
+      try {
+        const response = await fetch('/submit-comment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ comment: comment })
+        });
+
+        const analysis = await response.json();
+        displayComment(analysis);
+        document.getElementById('comment').value = ''; // Clear the text area
+      } catch (error) {
+        console.error('Error posting comment:', error);
+      }
+    }
+
+    function displayComment(comment) {
+      const commentsContainer = document.getElementById('comments');
+      const commentElement = document.createElement('div');
+      commentElement.classList.add('comment');
+      if (comment.sentiment === 'negative') {
+        commentElement.classList.add('negative');
+      } else {
+        commentElement.classList.add('positive');
+      }
+      commentElement.innerHTML = `<p><strong>Comment:</strong> ${comment.text}</p><p><strong>Sentiment:</strong> ${comment.sentiment}</p>`;
+      commentsContainer.appendChild(commentElement);
+    }
+  </script>
+</body>
+</html>
